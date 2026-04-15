@@ -1,0 +1,75 @@
+ABSOLUTE PROJECT RULES — NEVER VIOLATE:
+
+1. CLEAN ARCHITECTURE
+   - Strict separation: routes → handlers → services → db
+   - No business logic inside route files
+   - No direct Prisma calls inside route files
+
+2. FILE STRUCTURE (never change this)
+   src/
+   ├── routes/          # Express routers only
+   ├── handlers/        # Request handlers (thin layer)
+   ├── services/        # All business logic
+   ├── jobs/            # Cron jobs
+   ├── middleware/      # Auth, validation, error handling
+   ├── lib/             # Shared utilities (prisma client, axios instances)
+   ├── types/           # TypeScript interfaces & types
+   └── index.ts         # Entry point only
+
+3. CODE STANDARDS
+   - TypeScript strict mode — no 'any' types
+   - Every function must have JSDoc comment
+   - Every service method must have try/catch with proper error logging
+   - Use async/await — no .then() chains
+   - All magic numbers/strings → named constants in src/lib/constants.ts
+
+4. DATABASE
+   - All DB access through Prisma only — no raw SQL unless absolutely necessary
+   - Single Prisma client instance: src/lib/prisma.ts
+   - Never expose DB errors to client responses
+
+5. API & WEBHOOKS
+   - All external API calls inside src/services/ only
+   - Webhook handler must return 200 immediately — process async
+   - All API responses follow: { success: boolean, data?: any, error?: string }
+
+6. DOCUMENTATION
+   - Update PROJECT_MAP.md after every prompt
+   - Every new file gets a header comment explaining its purpose
+   - Every new endpoint documented with: method, path, purpose, request body, response
+
+7. SCALABILITY
+   - Multi-tenant: EVERY DB query must filter by merchant_id
+   - No hardcoded merchant IDs anywhere
+   - Environment variables for ALL external URLs and secrets
+
+8. ENGLISH ONLY
+   - All code, comments, variable names, function names → English
+   - Console logs → English
+   - Error messages → English
+
+# Salla × Mbiaat — Project Map
+
+## Current Status
+- Prompt 1: ✅ Complete
+- Prompt 2: ⏳ In Progress
+...
+
+## Endpoints
+| Method | Path | Purpose | Status |
+|--------|------|---------|--------|
+| GET | /health | Health check | ✅ |
+| POST | /webhook/salla | Receive Salla webhooks | ⏳ |
+
+## File Index
+| File | Purpose |
+|------|---------|
+| src/index.ts | Entry point |
+| src/lib/prisma.ts | Prisma singleton |
+...
+
+## Database Tables
+| Table | Purpose | Status |
+|-------|---------|--------|
+| merchants | ... | ✅ |
+...
