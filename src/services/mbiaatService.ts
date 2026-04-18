@@ -9,7 +9,6 @@ import {
   MbiaatCreateUserResponse,
   MbiaatDirectLoginResponse,
   MbiaatUserInfo,
-  MbiaatCreateSubscriberResponse,
 } from '../types';
 
 function getBaseUrl(): string {
@@ -183,8 +182,8 @@ export async function createLabel(
 export async function createSubscriber(
   apiToken: string,
   customer: { phone: string | null; name: string | null; email: string | null }
-): Promise<MbiaatCreateSubscriberResponse> {
-  const response = await axios.post<{ data: MbiaatCreateSubscriberResponse }>(
+): Promise<{ id: string }> {
+  const response = await axios.post<{ data: { id: string } }>(
     `${getBaseUrl()}/subscriber/create`,
     {
       apiToken,
