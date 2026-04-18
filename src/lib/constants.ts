@@ -13,3 +13,7 @@ export const RATING_DEFAULT_DELAY_DAYS = 3;
 
 export const TOKEN_REFRESH_CRON = '0 * * * *';
 export const MUTEX_RETRY_DELAY_MS = 2000;
+
+export const SYNC_PAGE_SIZE = 50;
+export const SYNC_PAGE_DELAY_MS = 100;
+export const PAYMENT_METHOD_COD = 'cod';
