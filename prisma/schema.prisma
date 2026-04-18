@@ -120,48 +120,93 @@ model order_items {
 }
 
 model smart_profiles {
-  id                     Int       @id @default(autoincrement())
-  merchant_id            Int
-  customer_id            Int       @unique
-  total_orders           Int       @default(0)
-  total_spent            Decimal   @default(0)
-  avg_order_value        Decimal   @default(0)
-  highest_order_value    Decimal   @default(0)
-  first_order_date       DateTime?
-  last_order_date        DateTime?
-  days_since_last_order  Int?
-  cod_orders_count       Int       @default(0)
-  prepaid_orders_count   Int       @default(0)
-  payment_preference     String?
-  top_category_name      String?
-  categories_bought      Json?
-  products_bought        Json?
-  cart_abandon_count     Int       @default(0)
-  last_abandoned_value   Decimal?
-  orders_from_whatsapp   Int       @default(0)
-  whatsapp_revenue       Decimal   @default(0)
-  segment                String    @default("NEW")
-  segment_updated_at     DateTime?
-  updated_at             DateTime  @updatedAt
+  id                          Int       @id @default(autoincrement())
+  merchant_id                 Int
+  customer_id                 Int       @unique
 
-  merchant merchants @relation(fields: [merchant_id], references: [id])
-  customer customers @relation(fields: [customer_id], references: [id])
+  total_orders                Int       @default(0)
+  total_spent                 Float     @default(0)
+  avg_order_value             Float     @default(0)
+  highest_order_value         Float     @default(0)
+  first_order_date            DateTime?
+  last_order_date             DateTime?
+  days_since_last_order       Int       @default(0)
+
+  cod_orders_count            Int       @default(0)
+  prepaid_orders_count        Int       @default(0)
+  payment_preference          String    @default("cod")
+
+  top_category_name           String?
+  secondary_category          String?
+  categories_bought           Json      @default("{}")
+  products_bought             Json      @default("{}")
+  category_diversity          Int       @default(0)
+  repeat_products             Json      @default("{}")
+  most_reordered_product      String?
+  reorder_rate                Float     @default(0)
+  never_bought_categories     Json      @default("[]")
+  upsell_candidate_products   Json      @default("[]")
+
+  cart_abandon_count          Int       @default(0)
+  last_abandoned_value        Float     @default(0)
+
+  orders_from_whatsapp        Int       @default(0)
+  whatsapp_revenue            Float     @default(0)
+  whatsapp_response_rate      Float     @default(0)
+
+  preferred_purchase_hour     Int?
+  preferred_purchase_period   String?
+  avg_days_between_orders     Float     @default(0)
+  next_purchase_predicted_date DateTime?
+  buys_in_ramadan             Boolean   @default(false)
+  buys_near_payday            Boolean   @default(false)
+
+  order_value_trend           String    @default("stable")
+  last_3_orders_avg           Float     @default(0)
+  predicted_annual_value      Float     @default(0)
+  customer_lifetime_value     Float     @default(0)
+
+  used_coupon_count           Int       @default(0)
+  total_discount_received     Float     @default(0)
+  buys_only_on_discount       Boolean   @default(false)
+  avg_discount_rate           Float     @default(0)
+
+  preferred_shipping_city     String?
+  free_shipping_orders_count  Int       @default(0)
+
+  loyalty_points              Int       @default(0)
+  loyalty_points_expiry       DateTime?
+  has_loyalty_app             Boolean   @default(false)
+  wallet_balance              Float     @default(0)
+
+  segment                     String    @default("PROSPECT")
+  segment_display             String    @default("عميل محتمل")
+  segment_updated_at          DateTime  @default(now())
+
+  created_at                  DateTime  @default(now())
+  updated_at                  DateTime  @updatedAt
+
+  merchants   merchants  @relation(fields: [merchant_id], references: [id])
+  customers   customers  @relation(fields: [customer_id], references: [id])
+
+  @@index([merchant_id])
+  @@index([segment])
 }
 
 model abandoned_carts {
-  id                          Int       @id @default(autoincrement())
-  merchant_id                 Int
-  customer_id                 Int?
-  salla_cart_id               String?
-  items                       Json?
-  total_value                 Decimal?
-  cart_link                   String?
-  status                      String    @default("pending")
+  id                           Int       @id @default(autoincrement())
+  merchant_id                  Int
+  customer_id                  Int?
+  salla_cart_id                String?
+  items                        Json?
+  total_value                  Decimal?
+  cart_link                    String?
+  status                       String    @default("pending")
   recovery_sequence_started_at DateTime?
-  recovered_at                DateTime?
-  messages_sent               Int       @default(0)
-  created_at                  DateTime  @default(now())
-  updated_at                  DateTime  @updatedAt
+  recovered_at                 DateTime?
+  messages_sent                Int       @default(0)
+  created_at                   DateTime  @default(now())
+  updated_at                   DateTime  @updatedAt
 
   merchant merchants  @relation(fields: [merchant_id], references: [id])
   customer customers? @relation(fields: [customer_id], references: [id])
@@ -182,6 +227,8 @@ model sequences_config {
   winback_delay_days           Int      @default(30)
   rating_sequence_id           String?
   rating_delay_days            Int      @default(3)
+  prospect_sequence_id         String?
+  prospect_delay_hours         Int      @default(24)
   created_at                   DateTime @default(now())
   updated_at                   DateTime @updatedAt
 
