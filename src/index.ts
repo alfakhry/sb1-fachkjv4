@@ -1,3 +1,6 @@
+// v2.0 - Smart Profile Engine + Audience System
+// test push
+// Updated
 /**
  * Application entry point.
  * Initializes the Express server, registers routes, and starts background jobs.
@@ -5,9 +8,11 @@
 
 import 'dotenv/config';
 import express from 'express';
+import path from 'path';
 import prisma from './lib/prisma';
 import webhookRouter from './routes/webhook';
 import audienceRouter from './routes/audience';
+import dashboardRouter from './routes/dashboard';
 import { startTokenRefreshJob } from './jobs/tokenRefresh';
 import { startDailyTasksJob } from './jobs/dailyTasks';
 
@@ -15,6 +20,7 @@ const app = express();
 const PORT = process.env.PORT ?? 3000;
 
 app.use(express.json());
+app.use(express.static(path.join(__dirname, '../public')));
 
 app.get('/health', (_req, res) => {
   res.json({ success: true, data: { status: 'ok', timestamp: new Date() } });
@@ -22,6 +28,11 @@ app.get('/health', (_req, res) => {
 
 app.use('/webhook', webhookRouter);
 app.use('/audience', audienceRouter);
+app.use('/api/dashboard', dashboardRouter);
+
+app.get('*', (_req, res) => {
+  res.sendFile(path.join(__dirname, '../public', 'index.html'));
+});
 
 async function main(): Promise<void> {
   await prisma.$connect();
@@ -40,6 +51,7 @@ async function main(): Promise<void> {
     console.log('  POST /audience/save');
     console.log('  POST /audience/sync/:listId');
     console.log('  GET  /audience/lists/:merchantId');
+    console.log('  GET  /api/dashboard/stats');
   });
 }
 
