@@ -1,5 +1,5 @@
 /**
- * Mbiaat API service — merchant account creation, direct login URL, account info, and subscriber management.
+ * Mbiaat API service — merchant account creation, direct login URL, and account info.
  * All external Mbiaat API calls live here.
  */
 
@@ -72,63 +72,17 @@ export async function getMerchantInfo(apiToken: string): Promise<MbiaatUserInfo>
 }
 
 /**
- * Updates a Mbiaat subscriber's profile fields.
- */
-export async function updateSubscriber(
-  apiToken: string,
-  subscriberId: string,
-  data: Record<string, unknown>
-): Promise<void> {
-  await axios.post(`${getBaseUrl()}/subscriber/update`, {
-    apiToken,
-    id: subscriberId,
-    ...data,
-  });
-}
-
-/**
- * Sets custom field values on a Mbiaat subscriber (e.g. order stats, segment).
- */
-export async function updateCustomFields(
-  apiToken: string,
-  subscriberId: string,
-  fields: Record<string, unknown>
-): Promise<void> {
-  await axios.post(`${getBaseUrl()}/subscriber/chat/assign-custom-fields`, {
-    apiToken,
-    id: subscriberId,
-    data: fields,
-  });
-}
-
-/**
- * Enrolls a Mbiaat subscriber into a sequence by sequenceId.
+ * Adds a subscriber to a Mbiaat sequence.
  */
 export async function addToSequence(
   apiToken: string,
   subscriberId: string,
   sequenceId: string
 ): Promise<void> {
-  await axios.post(`${getBaseUrl()}/subscriber/chat/assign-sequence`, {
-    apiToken,
-    id: subscriberId,
-    sequence_id: sequenceId,
-  });
-}
-
-/**
- * Removes a Mbiaat subscriber from a sequence by sequenceId.
- */
-export async function removeFromSequence(
-  apiToken: string,
-  subscriberId: string,
-  sequenceId: string
-): Promise<void> {
-  await axios.post(`${getBaseUrl()}/subscriber/chat/remove-sequence`, {
-    apiToken,
-    id: subscriberId,
-    sequence_id: sequenceId,
-  });
+  await axios.post(
+    `${getBaseUrl()}/subscriber/sequence/add`,
+    { apiToken, subscriber_id: subscriberId, sequence_id: sequenceId }
+  );
 }
 
 /**
@@ -139,11 +93,10 @@ export async function addLabel(
   subscriberId: string,
   labelId: string
 ): Promise<void> {
-  await axios.post(`${getBaseUrl()}/subscriber/chat/assign-label`, {
-    apiToken,
-    id: subscriberId,
-    label_id: labelId,
-  });
+  await axios.post(
+    `${getBaseUrl()}/subscriber/label/add`,
+    { apiToken, subscriber_id: subscriberId, label_id: labelId }
+  );
 }
 
 /**
@@ -154,44 +107,24 @@ export async function removeLabel(
   subscriberId: string,
   labelId: string
 ): Promise<void> {
-  await axios.post(`${getBaseUrl()}/subscriber/chat/remove-label`, {
-    apiToken,
-    id: subscriberId,
-    label_id: labelId,
-  });
+  await axios.post(
+    `${getBaseUrl()}/subscriber/label/remove`,
+    { apiToken, subscriber_id: subscriberId, label_id: labelId }
+  );
 }
 
 /**
- * Creates a new label in Mbiaat and returns the label ID.
+ * Creates a new label in a Mbiaat account.
+ * Returns the new label's ID.
  */
 export async function createLabel(
   apiToken: string,
-  name: string
+  labelName: string
 ): Promise<string> {
   const response = await axios.post<{ data: { id: string } }>(
     `${getBaseUrl()}/label/create`,
-    { apiToken, name }
+    { apiToken, name: labelName }
   );
+
   return response.data.data.id;
-}
-
-/**
- * Creates a WhatsApp subscriber in Mbiaat for a given customer.
- * Returns the new subscriber ID.
- */
-export async function createSubscriber(
-  apiToken: string,
-  customer: { phone: string | null; name: string | null; email: string | null }
-): Promise<{ id: string }> {
-  const response = await axios.post<{ data: { id: string } }>(
-    `${getBaseUrl()}/subscriber/create`,
-    {
-      apiToken,
-      phone: customer.phone,
-      name: customer.name,
-      email: customer.email ?? null,
-    }
-  );
-
-  return response.data.data;
 }

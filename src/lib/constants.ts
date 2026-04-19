@@ -15,5 +15,5 @@ export const TOKEN_REFRESH_CRON = '0 * * * *';
 export const MUTEX_RETRY_DELAY_MS = 2000;
 
 export const SYNC_PAGE_SIZE = 50;
-export const SYNC_PAGE_DELAY_MS = 100;
-export const PAYMENT_METHOD_COD = 'cod';
+export const SYNC_PAGE_DELAY_MS = 500;
+export const PAYMENT_METHOD_COD = 'cash_on_delivery';

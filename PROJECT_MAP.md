@@ -27,6 +27,11 @@ abandoned cart recovery, audience segmentation, and WhatsApp automation triggers
 |--------|------|---------|--------|
 | GET | /health | Health check | ✅ |
 | POST | /webhook/salla | Receive all Salla webhook events | ✅ |
+| GET | /audience/templates | List 12 preset audience templates | ✅ |
+| POST | /audience/preview | Preview audience count + sample | ✅ |
+| POST | /audience/save | Save audience list + create Mbiaat label | ✅ |
+| POST | /audience/sync/:listId | Sync audience list to Mbiaat label | ✅ |
+| GET | /audience/lists/:merchantId | Fetch saved audience lists for merchant | ✅ |
 
 ---
 
@@ -37,13 +42,18 @@ abandoned cart recovery, audience segmentation, and WhatsApp automation triggers
 | `src/index.ts` | Entry point — starts server, registers routes, starts cron jobs |
 | `src/lib/prisma.ts` | Singleton Prisma client — only DB access point |
 | `src/lib/constants.ts` | All magic strings/numbers as named constants |
+| `src/lib/automationLog.ts` | logAutomation() helper — writes audit entries to automation_log |
 | `src/types/index.ts` | Shared TypeScript interfaces |
 | `src/middleware/webhookVerifier.ts` | Verifies Salla HMAC-SHA256 webhook signatures |
 | `src/services/sallaService.ts` | Salla API calls: store info, token refresh |
-| `src/services/mbiaatService.ts` | Mbiaat API calls: create account, direct login, account info |
+| `src/services/mbiaatService.ts` | Mbiaat API calls: create account, login, info, sequences, labels |
+| `src/services/syncService.ts` | Historical data sync: customers, orders, smart profiles (46 fields) |
+| `src/services/audienceService.ts` | Audience filtering engine with 12 preset templates |
 | `src/handlers/appStoreAuthorize.ts` | Handles app.store.authorize event (5-step async flow) |
 | `src/routes/webhook.ts` | Express router for /webhook/salla — dispatches events |
+| `src/routes/audience.ts` | Express router for /audience — 5 audience endpoints |
 | `src/jobs/tokenRefresh.ts` | Hourly cron: refreshes expiring Salla OAuth tokens |
+| `src/jobs/dailyTasks.ts` | Midnight cron: segments, winback, upsell, rating, prospect triggers |
 | `prisma/schema.prisma` | Prisma schema for all 11 database models |
 
 ---

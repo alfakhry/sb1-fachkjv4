@@ -66,7 +66,7 @@ async function recalculateSegments(): Promise<number> {
       const { segment, segment_display } = deriveSegment(
         profile.total_orders,
         Number(profile.total_spent),
-        profile.days_since_last_order
+        profile.days_since_last_order ?? 0
       );
 
       if (segment !== profile.segment) {

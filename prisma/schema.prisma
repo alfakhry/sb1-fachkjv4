@@ -124,89 +124,93 @@ model smart_profiles {
   merchant_id                 Int
   customer_id                 Int       @unique
 
+  // Basic stats
   total_orders                Int       @default(0)
-  total_spent                 Float     @default(0)
-  avg_order_value             Float     @default(0)
-  highest_order_value         Float     @default(0)
+  total_spent                 Decimal   @default(0)
+  avg_order_value             Decimal   @default(0)
+  highest_order_value         Decimal   @default(0)
   first_order_date            DateTime?
   last_order_date             DateTime?
-  days_since_last_order       Int       @default(0)
+  days_since_last_order       Int?
 
+  // Payment analysis
   cod_orders_count            Int       @default(0)
   prepaid_orders_count        Int       @default(0)
-  payment_preference          String    @default("cod")
+  payment_preference          String?
 
+  // Category & product analysis
   top_category_name           String?
   secondary_category          String?
-  categories_bought           Json      @default("{}")
-  products_bought             Json      @default("{}")
+  categories_bought           Json?
+  products_bought             Json?
   category_diversity          Int       @default(0)
-  repeat_products             Json      @default("{}")
+  repeat_products             Json?
   most_reordered_product      String?
-  reorder_rate                Float     @default(0)
-  never_bought_categories     Json      @default("[]")
-  upsell_candidate_products   Json      @default("[]")
+  reorder_rate                Decimal   @default(0)
+  never_bought_categories     Json?
+  upsell_candidate_products   Json?
 
+  // Abandoned carts
   cart_abandon_count          Int       @default(0)
-  last_abandoned_value        Float     @default(0)
+  last_abandoned_value        Decimal?
 
+  // WhatsApp
   orders_from_whatsapp        Int       @default(0)
-  whatsapp_revenue            Float     @default(0)
-  whatsapp_response_rate      Float     @default(0)
+  whatsapp_revenue            Decimal   @default(0)
+  whatsapp_response_rate      Decimal   @default(0)
 
+  // Time intelligence
   preferred_purchase_hour     Int?
   preferred_purchase_period   String?
-  avg_days_between_orders     Float     @default(0)
+  avg_days_between_orders     Decimal   @default(0)
   next_purchase_predicted_date DateTime?
   buys_in_ramadan             Boolean   @default(false)
   buys_near_payday            Boolean   @default(false)
 
+  // Value trend
   order_value_trend           String    @default("stable")
-  last_3_orders_avg           Float     @default(0)
-  predicted_annual_value      Float     @default(0)
-  customer_lifetime_value     Float     @default(0)
+  last_3_orders_avg           Decimal   @default(0)
+  predicted_annual_value      Decimal   @default(0)
+  customer_lifetime_value     Decimal   @default(0)
 
-  used_coupon_count           Int       @default(0)
-  total_discount_received     Float     @default(0)
+  // Discount behaviour
+  total_discount_received     Decimal   @default(0)
   buys_only_on_discount       Boolean   @default(false)
-  avg_discount_rate           Float     @default(0)
+  avg_discount_rate           Decimal   @default(0)
 
+  // Shipping
   preferred_shipping_city     String?
   free_shipping_orders_count  Int       @default(0)
 
+  // Loyalty
   loyalty_points              Int       @default(0)
   loyalty_points_expiry       DateTime?
   has_loyalty_app             Boolean   @default(false)
-  wallet_balance              Float     @default(0)
 
-  segment                     String    @default("PROSPECT")
-  segment_display             String    @default("عميل محتمل")
-  segment_updated_at          DateTime  @default(now())
-
-  created_at                  DateTime  @default(now())
+  // Segment
+  segment                     String    @default("NEW")
+  segment_display             String    @default("")
+  segment_updated_at          DateTime?
   updated_at                  DateTime  @updatedAt
 
-  merchants   merchants  @relation(fields: [merchant_id], references: [id])
-  customers   customers  @relation(fields: [customer_id], references: [id])
-
-  @@index([merchant_id])
-  @@index([segment])
+  merchant merchants @relation(fields: [merchant_id], references: [id])
+  customer customers @relation(fields: [customer_id], references: [id])
 }
 
 model abandoned_carts {
-  id                           Int       @id @default(autoincrement())
-  merchant_id                  Int
-  customer_id                  Int?
-  salla_cart_id                String?
-  items                        Json?
-  total_value                  Decimal?
-  cart_link                    String?
-  status                       String    @default("pending")
+  id                          Int       @id @default(autoincrement())
+  merchant_id                 Int
+  customer_id                 Int?
+  salla_cart_id               String?
+  items                       Json?
+  total_value                 Decimal?
+  cart_link                   String?
+  status                      String    @default("pending")
   recovery_sequence_started_at DateTime?
-  recovered_at                 DateTime?
-  messages_sent                Int       @default(0)
-  created_at                   DateTime  @default(now())
-  updated_at                   DateTime  @updatedAt
+  recovered_at                DateTime?
+  messages_sent               Int       @default(0)
+  created_at                  DateTime  @default(now())
+  updated_at                  DateTime  @updatedAt
 
   merchant merchants  @relation(fields: [merchant_id], references: [id])
   customer customers? @relation(fields: [customer_id], references: [id])
@@ -215,20 +219,29 @@ model abandoned_carts {
 model sequences_config {
   id                           Int      @id @default(autoincrement())
   merchant_id                  Int      @unique
+  welcome_sequence_id          String?
+  welcome_enabled              Boolean  @default(true)
+  order_confirm_sequence_id    String?
+  order_confirm_enabled        Boolean  @default(true)
+  cod_convert_sequence_id      String?
+  cod_convert_enabled          Boolean  @default(true)
   abandoned_cart_sequence_id   String?
   abandoned_cart_delay_minutes Int      @default(30)
-  order_confirm_sequence_id    String?
-  cod_convert_sequence_id      String?
-  welcome_sequence_id          String?
+  abandoned_cart_enabled       Boolean  @default(true)
   shipping_update_sequence_id  String?
-  upsell_sequence_id           String?
-  upsell_delay_days            Int      @default(7)
-  winback_sequence_id          String?
-  winback_delay_days           Int      @default(30)
+  shipping_update_enabled      Boolean  @default(true)
   rating_sequence_id           String?
   rating_delay_days            Int      @default(3)
+  rating_enabled               Boolean  @default(true)
+  upsell_sequence_id           String?
+  upsell_delay_days            Int      @default(7)
+  upsell_enabled               Boolean  @default(true)
+  winback_sequence_id          String?
+  winback_delay_days           Int      @default(30)
+  winback_enabled              Boolean  @default(true)
   prospect_sequence_id         String?
   prospect_delay_hours         Int      @default(24)
+  prospect_enabled             Boolean  @default(true)
   created_at                   DateTime @default(now())
   updated_at                   DateTime @updatedAt
 
