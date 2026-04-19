@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "prisma generate && tsc",
-    "build:client": "cd client && npm install && npx vite build",
+    "build:client": "npm install --prefix client && npm run build --prefix client && cp -r client/public/* public/",
     "build:all": "npm run build && npm run build:client",
     "start": "node dist/index.js",
     "prisma:generate": "prisma generate",
@@ -29,3 +29,4 @@
     "typescript": "^5.7.2"
   }
 }
+
