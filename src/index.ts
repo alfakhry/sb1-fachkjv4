@@ -13,6 +13,7 @@ import prisma from './lib/prisma';
 import webhookRouter from './routes/webhook';
 import audienceRouter from './routes/audience';
 import dashboardRouter from './routes/dashboard';
+import sequencesRouter from './routes/sequences';
 import { startTokenRefreshJob } from './jobs/tokenRefresh';
 import { startDailyTasksJob } from './jobs/dailyTasks';
 
@@ -20,7 +21,7 @@ const app = express();
 const PORT = process.env.PORT ?? 3000;
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.static(path.join(process.cwd(), 'public')));
 
 app.get('/health', (_req, res) => {
   res.json({ success: true, data: { status: 'ok', timestamp: new Date() } });
@@ -29,6 +30,7 @@ app.get('/health', (_req, res) => {
 app.use('/webhook', webhookRouter);
 app.use('/audience', audienceRouter);
 app.use('/api/dashboard', dashboardRouter);
+app.use('/api/sequences', sequencesRouter);
 
 app.get('*', (_req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'index.html'));
@@ -52,6 +54,8 @@ async function main(): Promise<void> {
     console.log('  POST /audience/sync/:listId');
     console.log('  GET  /audience/lists/:merchantId');
     console.log('  GET  /api/dashboard/stats');
+    console.log('  GET  /api/sequences/:merchantId');
+    console.log('  PUT  /api/sequences/:merchantId');
   });
 }
 
