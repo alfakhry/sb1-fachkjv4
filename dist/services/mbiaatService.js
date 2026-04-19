@@ -10,6 +10,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.createMerchantAccount = createMerchantAccount;
 exports.getDirectLoginUrl = getDirectLoginUrl;
 exports.getMerchantInfo = getMerchantInfo;
+exports.addToSequence = addToSequence;
+exports.addLabel = addLabel;
+exports.removeLabel = removeLabel;
+exports.createLabel = createLabel;
 const crypto_1 = __importDefault(require("crypto"));
 const axios_1 = __importDefault(require("axios"));
 function getBaseUrl() {
@@ -51,5 +55,31 @@ async function getMerchantInfo(apiToken) {
         params: { apiToken },
     });
     return response.data.data;
+}
+/**
+ * Adds a subscriber to a Mbiaat sequence.
+ */
+async function addToSequence(apiToken, subscriberId, sequenceId) {
+    await axios_1.default.post(`${getBaseUrl()}/subscriber/sequence/add`, { apiToken, subscriber_id: subscriberId, sequence_id: sequenceId });
+}
+/**
+ * Adds a label to a Mbiaat subscriber.
+ */
+async function addLabel(apiToken, subscriberId, labelId) {
+    await axios_1.default.post(`${getBaseUrl()}/subscriber/label/add`, { apiToken, subscriber_id: subscriberId, label_id: labelId });
+}
+/**
+ * Removes a label from a Mbiaat subscriber.
+ */
+async function removeLabel(apiToken, subscriberId, labelId) {
+    await axios_1.default.post(`${getBaseUrl()}/subscriber/label/remove`, { apiToken, subscriber_id: subscriberId, label_id: labelId });
+}
+/**
+ * Creates a new label in a Mbiaat account.
+ * Returns the new label's ID.
+ */
+async function createLabel(apiToken, labelName) {
+    const response = await axios_1.default.post(`${getBaseUrl()}/label/create`, { apiToken, name: labelName });
+    return response.data.data.id;
 }
 //# sourceMappingURL=mbiaatService.js.map

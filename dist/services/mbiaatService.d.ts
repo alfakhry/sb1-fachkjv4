@@ -20,4 +20,21 @@ export declare function getDirectLoginUrl(mbiaatUserId: string): Promise<MbiaatD
  * Returns full account data including phone_number_id from whatsapp_bots_details[0].
  */
 export declare function getMerchantInfo(apiToken: string): Promise<MbiaatUserInfo>;
+/**
+ * Adds a subscriber to a Mbiaat sequence.
+ */
+export declare function addToSequence(apiToken: string, subscriberId: string, sequenceId: string): Promise<void>;
+/**
+ * Adds a label to a Mbiaat subscriber.
+ */
+export declare function addLabel(apiToken: string, subscriberId: string, labelId: string): Promise<void>;
+/**
+ * Removes a label from a Mbiaat subscriber.
+ */
+export declare function removeLabel(apiToken: string, subscriberId: string, labelId: string): Promise<void>;
+/**
+ * Creates a new label in a Mbiaat account.
+ * Returns the new label's ID.
+ */
+export declare function createLabel(apiToken: string, labelName: string): Promise<string>;
 //# sourceMappingURL=mbiaatService.d.ts.map

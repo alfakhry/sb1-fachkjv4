@@ -10,4 +10,7 @@ export declare const WINBACK_DEFAULT_DELAY_DAYS = 30;
 export declare const RATING_DEFAULT_DELAY_DAYS = 3;
 export declare const TOKEN_REFRESH_CRON = "0 * * * *";
 export declare const MUTEX_RETRY_DELAY_MS = 2000;
+export declare const SYNC_PAGE_SIZE = 50;
+export declare const SYNC_PAGE_DELAY_MS = 500;
+export declare const PAYMENT_METHOD_COD = "cash_on_delivery";
 //# sourceMappingURL=constants.d.ts.map
