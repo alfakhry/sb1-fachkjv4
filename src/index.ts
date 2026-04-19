@@ -33,7 +33,7 @@ app.use('/api/dashboard', dashboardRouter);
 app.use('/api/sequences', sequencesRouter);
 
 app.get('*', (_req, res) => {
-  res.sendFile(path.join(__dirname, '../public', 'index.html'));
+  res.sendFile(path.join(process.cwd(), 'public', 'index.html'));
 });
 
 async function main(): Promise<void> {
