@@ -5,6 +5,7 @@ export default defineConfig({
   plugins: [react()],
   build: {
     outDir: '../public',
+    emptyOutDir: true,
   },
   server: {
     proxy: {
@@ -15,3 +16,4 @@ export default defineConfig({
     },
   },
 });
+
