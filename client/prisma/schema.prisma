@@ -1,0 +1,310 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model merchants {
+  id                     Int                   @id @default(autoincrement())
+  salla_merchant_id      String                @unique
+  store_name             String?
+  store_url              String?
+  access_token           String
+  refresh_token          String
+  token_expires_at       DateTime
+  mbiaat_user_id         String?
+  mbiaat_api_token       String?
+  mbiaat_phone_number_id String?
+  is_active              Boolean               @default(true)
+  created_at             DateTime              @default(now())
+  updated_at             DateTime              @updatedAt
+
+  customers              customers[]
+  orders                 orders[]
+  order_items            order_items[]
+  smart_profiles         smart_profiles[]
+  abandoned_carts        abandoned_carts[]
+  sequences_config       sequences_config?
+  audience_lists         audience_lists[]
+  automation_log         automation_log[]
+  campaign_attribution   campaign_attribution[]
+}
+
+model customers {
+  id                   Int            @id @default(autoincrement())
+  merchant_id          Int
+  salla_customer_id    String
+  name                 String?
+  phone                String?
+  email                String?
+  mobile_code          String?
+  city                 String?
+  country              String?
+  gender               String?
+  customer_group       String?
+  first_seen_at        DateTime?
+  last_order_at        DateTime?
+  mbiaat_subscriber_id String?
+  synced_to_mbiaat     Boolean        @default(false)
+  created_at           DateTime       @default(now())
+  updated_at           DateTime       @updatedAt
+
+  merchant             merchants      @relation(fields: [merchant_id], references: [id])
+  orders               orders[]
+  order_items          order_items[]
+  smart_profile        smart_profiles?
+  abandoned_carts      abandoned_carts[]
+  automation_log       automation_log[]
+  campaign_attribution campaign_attribution[]
+
+  @@unique([merchant_id, salla_customer_id])
+}
+
+model orders {
+  id                  Int                    @id @default(autoincrement())
+  merchant_id         Int
+  customer_id         Int?
+  salla_order_id      String
+  reference_id        String?
+  status_slug         String?
+  source              String?
+  source_device       String?
+  payment_method      String?
+  total_amount        Decimal?
+  subtotal_amount     Decimal?
+  shipping_amount     Decimal?
+  tax_amount          Decimal?
+  shipping_city       String?
+  shipping_address    String?
+  tracking_number     String?
+  url_customer        String?
+  url_rating          String?
+  from_whatsapp       Boolean                @default(false)
+  campaign_label      String?
+  attributed_sequence String?
+  salla_created_at    DateTime?
+  created_at          DateTime               @default(now())
+  updated_at          DateTime               @updatedAt
+
+  merchant             merchants              @relation(fields: [merchant_id], references: [id])
+  customer             customers?             @relation(fields: [customer_id], references: [id])
+  order_items          order_items[]
+  campaign_attribution campaign_attribution[]
+
+  @@unique([merchant_id, salla_order_id])
+}
+
+model order_items {
+  id                Int       @id @default(autoincrement())
+  order_id          Int
+  merchant_id       Int
+  customer_id       Int?
+  product_id        String?
+  product_name      String?
+  sku               String?
+  category_id       String?
+  category_name     String?
+  quantity          Int?
+  unit_price        Decimal?
+  total_price       Decimal?
+  product_image_url String?
+  options           Json?
+  created_at        DateTime  @default(now())
+
+  order    orders     @relation(fields: [order_id], references: [id])
+  merchant merchants  @relation(fields: [merchant_id], references: [id])
+  customer customers? @relation(fields: [customer_id], references: [id])
+}
+
+model smart_profiles {
+  id                          Int       @id @default(autoincrement())
+  merchant_id                 Int
+  customer_id                 Int       @unique
+
+  // Basic stats
+  total_orders                Int       @default(0)
+  total_spent                 Decimal   @default(0)
+  avg_order_value             Decimal   @default(0)
+  highest_order_value         Decimal   @default(0)
+  first_order_date            DateTime?
+  last_order_date             DateTime?
+  days_since_last_order       Int?
+
+  // Payment analysis
+  cod_orders_count            Int       @default(0)
+  prepaid_orders_count        Int       @default(0)
+  payment_preference          String?
+
+  // Category & product analysis
+  top_category_name           String?
+  secondary_category          String?
+  categories_bought           Json?
+  products_bought             Json?
+  category_diversity          Int       @default(0)
+  repeat_products             Json?
+  most_reordered_product      String?
+  reorder_rate                Decimal   @default(0)
+  never_bought_categories     Json?
+  upsell_candidate_products   Json?
+
+  // Abandoned carts
+  cart_abandon_count          Int       @default(0)
+  last_abandoned_value        Decimal?
+
+  // WhatsApp
+  orders_from_whatsapp        Int       @default(0)
+  whatsapp_revenue            Decimal   @default(0)
+  whatsapp_response_rate      Decimal   @default(0)
+
+  // Time intelligence
+  preferred_purchase_hour     Int?
+  preferred_purchase_period   String?
+  avg_days_between_orders     Decimal   @default(0)
+  next_purchase_predicted_date DateTime?
+  buys_in_ramadan             Boolean   @default(false)
+  buys_near_payday            Boolean   @default(false)
+
+  // Value trend
+  order_value_trend           String    @default("stable")
+  last_3_orders_avg           Decimal   @default(0)
+  predicted_annual_value      Decimal   @default(0)
+  customer_lifetime_value     Decimal   @default(0)
+
+  // Discount behaviour
+  total_discount_received     Decimal   @default(0)
+  buys_only_on_discount       Boolean   @default(false)
+  avg_discount_rate           Decimal   @default(0)
+
+  // Shipping
+  preferred_shipping_city     String?
+  free_shipping_orders_count  Int       @default(0)
+
+  // Loyalty
+  loyalty_points              Int       @default(0)
+  loyalty_points_expiry       DateTime?
+  has_loyalty_app             Boolean   @default(false)
+
+  // Segment
+  segment                     String    @default("NEW")
+  segment_display             String    @default("")
+  segment_updated_at          DateTime?
+  updated_at                  DateTime  @updatedAt
+
+  merchant merchants @relation(fields: [merchant_id], references: [id])
+  customer customers @relation(fields: [customer_id], references: [id])
+}
+
+model abandoned_carts {
+  id                          Int       @id @default(autoincrement())
+  merchant_id                 Int
+  customer_id                 Int?
+  salla_cart_id               String?
+  items                       Json?
+  total_value                 Decimal?
+  cart_link                   String?
+  status                      String    @default("pending")
+  recovery_sequence_started_at DateTime?
+  recovered_at                DateTime?
+  messages_sent               Int       @default(0)
+  created_at                  DateTime  @default(now())
+  updated_at                  DateTime  @updatedAt
+
+  merchant merchants  @relation(fields: [merchant_id], references: [id])
+  customer customers? @relation(fields: [customer_id], references: [id])
+}
+
+model sequences_config {
+  id                           Int      @id @default(autoincrement())
+  merchant_id                  Int      @unique
+  welcome_sequence_id          String?
+  welcome_enabled              Boolean  @default(true)
+  order_confirm_sequence_id    String?
+  order_confirm_enabled        Boolean  @default(true)
+  cod_convert_sequence_id      String?
+  cod_convert_enabled          Boolean  @default(true)
+  abandoned_cart_sequence_id   String?
+  abandoned_cart_delay_minutes Int      @default(30)
+  abandoned_cart_enabled       Boolean  @default(true)
+  shipping_update_sequence_id  String?
+  shipping_update_enabled      Boolean  @default(true)
+  rating_sequence_id           String?
+  rating_delay_days            Int      @default(3)
+  rating_enabled               Boolean  @default(true)
+  upsell_sequence_id           String?
+  upsell_delay_days            Int      @default(7)
+  upsell_enabled               Boolean  @default(true)
+  winback_sequence_id          String?
+  winback_delay_days           Int      @default(30)
+  winback_enabled              Boolean  @default(true)
+  prospect_sequence_id         String?
+  prospect_delay_hours         Int      @default(24)
+  prospect_enabled             Boolean  @default(true)
+  created_at                   DateTime @default(now())
+  updated_at                   DateTime @updatedAt
+
+  merchant merchants @relation(fields: [merchant_id], references: [id])
+}
+
+model audience_lists {
+  id                Int               @id @default(autoincrement())
+  merchant_id       Int
+  name              String
+  description       String?
+  mbiaat_label_id   String?
+  mbiaat_label_name String?
+  total_matched     Int               @default(0)
+  last_synced_at    DateTime?
+  is_active         Boolean           @default(true)
+  created_at        DateTime          @default(now())
+  updated_at        DateTime          @updatedAt
+
+  merchant         merchants          @relation(fields: [merchant_id], references: [id])
+  audience_filters audience_filters[]
+}
+
+model audience_filters {
+  id              Int            @id @default(autoincrement())
+  list_id         Int
+  filter_type     String
+  filter_field    String
+  filter_operator String
+  filter_value    String?
+  filter_value_2  String?
+  created_at      DateTime       @default(now())
+
+  audience_list audience_lists @relation(fields: [list_id], references: [id])
+}
+
+model automation_log {
+  id            Int       @id @default(autoincrement())
+  merchant_id   Int
+  customer_id   Int?
+  event_type    String
+  sequence_id   String?
+  sequence_name String?
+  action        String?
+  status        String?
+  triggered_at  DateTime  @default(now())
+  error_message String?
+
+  merchant  merchants  @relation(fields: [merchant_id], references: [id])
+  customer  customers? @relation(fields: [customer_id], references: [id])
+}
+
+model campaign_attribution {
+  id                    Int       @id @default(autoincrement())
+  merchant_id           Int
+  customer_id           Int?
+  order_id              Int?
+  source_sequence       String?
+  source_message_number Int?
+  order_total           Decimal?
+  attributed_at         DateTime  @default(now())
+
+  merchant  merchants  @relation(fields: [merchant_id], references: [id])
+  customer  customers? @relation(fields: [customer_id], references: [id])
+  order     orders?    @relation(fields: [order_id], references: [id])
+}
