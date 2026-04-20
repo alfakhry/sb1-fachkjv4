@@ -1,4 +1,3 @@
-626f6c742d63632d6167656e74```typescript
 /**
  * Middleware to verify the HMAC-SHA256 signature on incoming Salla webhooks.
  * Skips verification in development when SALLA_WEBHOOK_SECRET is not set.
@@ -40,5 +39,3 @@ export function webhookVerifier(req: Request, res: Response, next: NextFunction)
 
   next();
 }
-```
-
