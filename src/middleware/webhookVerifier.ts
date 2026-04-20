@@ -1,3 +1,4 @@
+626f6c742d63632d6167656e74```typescript
 /**
  * Middleware to verify the HMAC-SHA256 signature on incoming Salla webhooks.
  * Skips verification in development when SALLA_WEBHOOK_SECRET is not set.
@@ -7,10 +8,12 @@ import crypto from 'crypto';
 import { Request, Response, NextFunction } from 'express';
 
 export function webhookVerifier(req: Request, res: Response, next: NextFunction): void {
+  console.log('[webhook] Received request, headers:', JSON.stringify(req.headers));
+
   const secret = process.env.SALLA_WEBHOOK_SECRET;
 
   if (!secret) {
-    console.warn('[webhookVerifier] SALLA_WEBHOOK_SECRET not set — skipping signature verification');
+    console.warn('[webhookVerifier] WARNING: SALLA_WEBHOOK_SECRET is not set — passing through without signature verification');
     next();
     return;
   }
@@ -23,10 +26,19 @@ export function webhookVerifier(req: Request, res: Response, next: NextFunction)
     .update(payload)
     .digest('hex');
 
-  if (signature !== expected) {
+  const signatureMatch = signature === expected;
+  console.log('[webhookVerifier] Signature check:', {
+    provided: signature ?? '(none)',
+    expected,
+    match: signatureMatch,
+  });
+
+  if (!signatureMatch) {
     res.status(401).json({ success: false, error: 'Invalid signature' });
     return;
   }
 
   next();
 }
+```
+
